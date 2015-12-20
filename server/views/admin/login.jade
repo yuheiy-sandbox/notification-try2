@@ -1,0 +1,38 @@
+extends ../_layout
+
+block content
+  .column.row(style='max-width: 30rem;')
+    h1 Login
+
+    each message in error
+      p.error= message
+
+    form(
+      method='post',
+      action='/admin/login'
+    )
+      input(
+        type='hidden',
+        name='_csrf',
+        value= csrfToken
+      )
+
+      label
+        | Username
+        input(
+          type='text',
+          name='username',
+          placeholder='username',
+          required
+        )
+
+      label
+        | Password
+        input(
+          type='password',
+          name='password',
+          placeholder='password',
+          required
+        )
+
+      button.button(type='submit') Login

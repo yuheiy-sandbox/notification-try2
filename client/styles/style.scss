@@ -29,6 +29,10 @@ table {
   margin-bottom: 1rem;
 }
 
+.error {
+  color: $alert-color;
+}
+
 .nowrap {
   white-space: nowrap;
 }
