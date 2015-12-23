@@ -9,7 +9,10 @@ import flash from 'connect-flash';
 import csrf from 'csurf';
 import passport from 'passport';
 import { Strategy } from 'passport-local';
+import mongoose from 'mongoose';
+import connectMongo from 'connect-mongo';
 import socketIo from 'socket.io';
+import { Creator, Work } from './models/database';
 import routes from './routes/index';
 import admin from './routes/admin';
 
@@ -35,6 +38,7 @@ passport.use(new Strategy((username, password, done) => {
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
+const MongoStore = connectMongo(session);
 
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
@@ -45,7 +49,8 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(session({
   secret: 'keyboard cat',
   resave: false,
-  saveUninitialized: true
+  saveUninitialized: true,
+  store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
 app.use(csrf({ cookie: true }));
 app.use(flash());
@@ -56,8 +61,17 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 app.use('/', routes);
 app.use('/admin', admin);
 
-io.on('connection', socket => {
-  io.emit('init', 'test data');
-});
+// io.on('connection', socket => {
+//   io.emit('init', 'test data');
+//
+//   socket.on('add work', (workData, creatorData) => {
+//     const creator = new Creator(creatorData);
+//
+//     const work = new Work(Object.assign(workData, {
+//       creators: [creator]
+//     }));
+//
+//   });
+// });
 
 server.listen(process.env.PORT || 3000);

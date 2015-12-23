@@ -6,13 +6,8 @@ $table-striped-background: $table-background;
 @include foundation-everything;
 
 table {
-  input,
-  button {
-    margin: 0 !important;
-  }
-
-  [type='file'] {
-    min-width: 17em;
+  .button {
+    margin-bottom: 0;
   }
 
   img {
@@ -21,16 +16,8 @@ table {
   }
 }
 
-.tabs-title.is-active > a {
+.tabs-title > a.is-active {
   background: $tab-background-active;
-}
-
-.tabs-content {
-  margin-bottom: 1rem;
-}
-
-.error {
-  color: $alert-color;
 }
 
 .nowrap {
