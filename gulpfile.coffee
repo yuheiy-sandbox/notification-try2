@@ -1,9 +1,7 @@
-watchify = require 'watchify'
-browserify = require 'browserify'
 gulp = require 'gulp'
-source = require 'vinyl-source-stream'
-buffer = require 'vinyl-buffer'
 $ = require('gulp-load-plugins')()
+webpack = require 'webpack'
+webpackConfig = require './webpack.config'
 
 gulp.task 'sass', ->
   gulp.src 'client/styles/style.scss'
@@ -16,52 +14,28 @@ gulp.task 'sass', ->
     .pipe $.sourcemaps.write './'
     .pipe gulp.dest 'public'
 
-watching = false
-gulp.task 'enable-watch-mode', -> watching = true
+myDevConfig = Object.create webpackConfig
+myDevConfig.debug = true
+devCompiler = webpack myDevConfig
 
-gulp.task 'browserify', ->
-  createBundle = (opts) ->
-    b = browserify Object.assign {}, watchify.args,
-      entries: opts.input
-      debug: true
+gulp.task 'webpack:dev', (cb) ->
+  devCompiler.run (err, stats) ->
+    if err
+      throw new $.util.PluginError 'webpack:dev', err
+    $.util.log '[webpack:dev]', stats.toString
+      colors: true
+    cb()
 
-    bundle = ->
-      b
-        .transform 'babelify'
-        .transform 'uglifyify', global: true
-        .bundle()
-        .on 'error', (err) ->
-          $.util.log 'Browserify Error', err.codeFrame
-        .pipe source opts.output
-        .pipe buffer()
-        .pipe $.sourcemaps.init loadMaps: true
-        .pipe $.sourcemaps.write './'
-        .pipe gulp.dest 'public'
+gulp.task 'webpack:build', (cb) ->
+  webpack webpackConfig, (err, stats) ->
+    if err
+      throw new $.util.PluginError 'webpack', err
+    $.util.log '[webpack:build]', stats.toString
+      colors: true
+    cb()
 
-    if watching
-      w = watchify b
-      w.on 'update', bundle
-      w.on 'log', $.util.log
-
-    bundle()
-
-  files = [
-    {
-      input: 'client/app.js'
-      output: 'app.js'
-    }
-    {
-      input: 'client/admin.js'
-      output: 'admin.js'
-    }
-  ]
-
-  files.forEach (file) ->
-    createBundle file
-
-gulp.task 'watchify', ['enable-watch-mode', 'browserify']
-
-gulp.task 'watch', ['sass', 'watchify'], ->
+gulp.task 'watch', ['webpack:dev', 'sass'], ->
+  gulp.watch 'client/**/*.js', ['webpack:dev']
   gulp.watch 'client/styles/**/*.scss', ['sass']
 
-gulp.task 'build', ['sass', 'browserify']
+gulp.task 'build', ['webpack:build', 'sass']
