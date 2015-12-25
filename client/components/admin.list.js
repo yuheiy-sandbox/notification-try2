@@ -19,8 +19,8 @@ export default class List extends React.Component {
   }
   render() {
     return (
-      <div className="column row">
-        <table>
+      <div className="column expanded row">
+        <table className="large-centered">
           <thead>
             <tr>
               <th
@@ -30,7 +30,13 @@ export default class List extends React.Component {
                className="nowrap"
                rowSpan="2">作品名</th>
               <th rowSpan="2">説明文</th>
-              <th rowSpan="2">サムネイル</th>
+              <th
+               className="nowrap"
+               rowSpan="2"
+               style={{
+                 minWidth: '64px',
+                 boxSizing: 'content-box'
+               }}>サムネイル</th>
               <th
                className="nowrap"
                colSpan="4">制作者</th>
@@ -64,7 +70,12 @@ export default class List extends React.Component {
                        className="nowrap"
                        rowSpan={length}>{datum.name}</td>
                       <td rowSpan={length}>{datum.description}</td>
-                      <td rowSpan={length}><img src={datum.thumbnail} /></td>
+                      <td rowSpan={length}>
+                        <img
+                         src={datum.thumbnail}
+                         width="64"
+                         height="64" />
+                      </td>
                       <td className="nowrap">{creator.name}</td>
                       <td className="nowrap">{creator.role}</td>
                       <td className="nowrap">{creator.email}</td>

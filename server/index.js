@@ -68,36 +68,30 @@ io.on('connection', socket => {
     return;
   }
 
-  const getAll = () => {
-    return new Promise(done =>
-      Work.find({}).sort({ modified: 1 })
-        .then(docs => done(docs))
-    );
+  const update = () => {
+    Work.find({}).sort({ modified: 1 })
+      .then(docs => io.emit('update', docs));
   };
 
-  getAll()
-    .then(docs => io.emit('update', docs));
+  update();
 
   socket.on('create', data => {
     const work = new Work(data);
 
     work.save()
-      .then(getAll)
-      .then(docs => io.emit('update', docs));
+      .then(update);
   });
 
   socket.on('edit', (id, data) => {
     data.modified = new Date();
 
     Work.findByIdAndUpdate(id, data)
-      .then(getAll)
-      .then(docs => io.emit('update', docs));
+      .then(update);
   });
 
   socket.on('delete', id => {
     Work.findByIdAndRemove(id)
-      .then(getAll)
-      .then(docs => io.emit('update', docs));
+      .then(update);
   });
 
   socket.on('change', (workId, creatorId, state) => {
@@ -106,8 +100,7 @@ io.on('connection', socket => {
         result.creators.id(creatorId).state = state;
         return result.save();
       })
-      .then(getAll)
-      .then(docs => io.emit('update', docs));
+      .then(update);
   });
 });
 

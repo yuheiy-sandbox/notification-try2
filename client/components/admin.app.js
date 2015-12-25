@@ -10,9 +10,7 @@ export default class App extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = {
-      data: []
-    }
+    this.state = { data: [] };
   }
   componentDidMount() {
     socket.on('update', data => {
@@ -40,10 +38,9 @@ export default class App extends React.Component {
       // send to server
       socket.emit('delete', id);
     });
-
-    // socket.emit('change', "567cce8ebcd407df2c5bf973", "567cce8ebcd407df2c5bf974", 1);
   }
   render() {
+    const { children } = this.props;
     const data = this.state.data.slice().reverse();
 
     return (
@@ -72,9 +69,7 @@ export default class App extends React.Component {
 
           <div className="tabs-content">
             <div className="tabs-panel is-active">
-              {this.props.children && React.cloneElement(this.props.children, {
-                data
-              })}
+              {children && React.cloneElement(children, { data })}
             </div>
           </div>
         </div>

@@ -15,33 +15,30 @@ export default class Form extends React.Component {
 
     this.state = { type: NOMATCH };
   }
-  setType(props) {
+  getDatum(props = this.props) {
+    const { data, params } = props;
+    const datum = _.find(data, { _id: params.id });
+    return datum;
+  }
+  getType(datum) {
     const isNew = this.context.history.isActive('/new', null);
 
     if (isNew) {
-      this.setState({ type: NEW });
-      this.setInitialValue(NEW);
-      return;
+      return NEW;
     }
 
-    const { data, params } = props;
-    const datum = _.find(data, { _id: params.id });
     const isEdit = !!datum;
 
     if (isEdit) {
-      this.setState({ type: EDIT });
-      this.setInitialValue(EDIT, props);
-      return;
+      return EDIT;
     }
 
-    if (this.state.type !== NOMATCH) {
-      this.setState({ type: NOMATCH });
-    }
+    return NOMATCH;
   }
-  setInitialValue(type, props = {}) {
+  getInitialValue(type = NOMATCH, datum = {}) {
     switch (type) {
       case NEW:
-        this.setState({
+        return {
           sectionValue: 1,
           nameValue: null,
           descriptionValue: null,
@@ -51,15 +48,10 @@ export default class Form extends React.Component {
             roleValue: null,
             emailValue: null
           }]
-        });
-
-        break;
+        };
 
       case EDIT:
-        const { data, params } = props;
-        const datum = _.find(data, { _id: params.id });
-
-        this.setState({
+        return {
           sectionValue: datum.section,
           nameValue: datum.name,
           descriptionValue: datum.description,
@@ -73,8 +65,18 @@ export default class Form extends React.Component {
               emailValue: email
             };
           })
-        });
+        };
+
+      default:
+        return {};
     }
+  }
+  initialize(props = this.props) {
+    const datum = this.getDatum(props);
+    const type = this.getType(datum);
+    const initialValue = this.getInitialValue(type, datum);
+    const state = _.assign({ type }, initialValue);
+    this.setState(state);
   }
   handleSubmit(e) {
     e.preventDefault();
@@ -179,11 +181,16 @@ export default class Form extends React.Component {
     this.setState({ creators });
   }
   componentWillMount() {
-    this.setType(this.props);
+    this.initialize();
   }
   componentWillReceiveProps(nextProps) {
-    if (this.props.params.id !== nextProps.params.id) {
-      this.setType(nextProps);
+    const hasData = !!this.props.data.length;
+
+    if (
+      !hasData ||
+      this.props.params.id !== nextProps.params.id
+    ) {
+      this.initialize(nextProps);
     }
   }
   render() {
@@ -197,6 +204,10 @@ export default class Form extends React.Component {
     return (
       <form
        className="row"
+       style={{
+         marginRight: 'auto',
+         marginLeft: 'auto'
+       }}
        onSubmit={this.handleSubmit.bind(this)}>
         <div className="large-6 columns">
           <fieldset className="fieldset">
@@ -251,46 +262,50 @@ export default class Form extends React.Component {
           <fieldset className="fieldset">
             <legend>制作者情報</legend>
 
-            {creators.map((creator, i) =>
-              <div
-               key={i}
-               className="callout">
-                {creators.length > 1 ?
-                  <button
-                   className="close-button"
-                   type="button"
-                   onClick={this.handleRemoveCreator.bind(this, i)}>
-                    &times;
-                  </button>
-                : null}
+            {creators.map((creator, i) => {
+              const isMultiple = creators.length > 1;
 
-                <label>
-                  名前
-                  <input
-                   type="text"
-                   value={creator.nameValue}
-                   required
-                   onChange={this.handleCreatorNameChange.bind(this, i)} />
-                </label>
+              return (
+                <div
+                 key={i}
+                 className="callout">
+                  {isMultiple ?
+                    <button
+                     className="close-button"
+                     type="button"
+                     onClick={this.handleRemoveCreator.bind(this, i)}>
+                      &times;
+                    </button>
+                  : null}
 
-                <label>
-                  担当
-                  <input
-                   type="text"
-                   value={creator.roleValue}
-                   onChange={this.handleCreatorRole.bind(this, i)} />
-                </label>
+                  <label>
+                    名前
+                    <input
+                     type="text"
+                     value={creator.nameValue}
+                     required
+                     onChange={this.handleCreatorNameChange.bind(this, i)} />
+                  </label>
 
-                <label>
-                  メール
-                  <input
-                   type="email"
-                   value={creator.emailValue}
-                   required
-                   onChange={this.handleCreatorEmail.bind(this, i)} />
-                </label>
-              </div>
-            )}
+                  <label>
+                    担当
+                    <input
+                     type="text"
+                     value={creator.roleValue}
+                     onChange={this.handleCreatorRole.bind(this, i)} />
+                  </label>
+
+                  <label>
+                    メール
+                    <input
+                     type="email"
+                     value={creator.emailValue}
+                     required
+                     onChange={this.handleCreatorEmail.bind(this, i)} />
+                  </label>
+                </div>
+              );
+            })}
 
             <p className="text-right">
               <button
