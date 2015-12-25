@@ -1,6 +1,7 @@
 'use strict';
 import React from 'react';
 import { Link, IndexLink } from 'react-router';
+import _ from 'lodash';
 import eventemitter from '../eventemitter';
 
 const socket = io();
@@ -14,54 +15,45 @@ export default class App extends React.Component {
     }
   }
   componentDidMount() {
-    eventemitter.on('new', data => {
-      console.log('data', data);
-      console.log('send to api');
+    socket.on('update', data => {
+      console.log(data);
+      this.setState({ data });
+    });
+
+    eventemitter.on('create', data => {
+      // send to server
+      socket.emit('create', data);
     });
 
     eventemitter.on('edit', (id, data) => {
-      console.log('id', id);
-      console.log('data', data);
-      console.log('send to api');
+      // send to server
+      socket.emit('edit', id, data);
     });
 
     eventemitter.on('delete', id => {
-      console.log('id', id);
-      console.log('send to api');
+      // optimistic updates
+      const { data } = this.state;
+      const index = _.findIndex(data, { _id: id });
+      data.splice(index, 1);
+      this.setState({ data });
+
+      // send to server
+      socket.emit('delete', id);
     });
 
-    this.setState({ data: [
-      {
-        _id: 'asdvaewavewvds',
-        section: 3,
-        name: '俺のゲーム',
-        description: 'ああああああああああああ',
-        thumbnail: 'aaaaaaaaaaaaaaaaaaaaaaaaaa',
-        creators: [{
-          name: 'tom',
-          role: 'planning',
-          email: 'foo@gmai.com',
-          state: 1
-        }, {
-          name: 'bob',
-          role: 'coding',
-          email: 'example@test.com',
-          state: 1
-        }],
-        created: '1111',
-        modified: '1111'
-      }
-    ] });
+    // socket.emit('change', "567cce8ebcd407df2c5bf973", "567cce8ebcd407df2c5bf974", 1);
   }
   render() {
+    const data = this.state.data.slice().reverse();
+
     return (
       <div>
-        <div className="column row">
+        <div className="column expanded row">
           <h1>Dashboard</h1>
           <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus temporibus, molestiae laborum rerum iste nostrum animi odio ad, expedita dolor nobis commodi consequatur ex pariatur laboriosam maxime incidunt harum. Fugit.</p>
         </div>
 
-        <div className="column row">
+        <div className="column expanded row">
           <ul className="tabs">
             <li className="tabs-title">
               <IndexLink
@@ -81,7 +73,7 @@ export default class App extends React.Component {
           <div className="tabs-content">
             <div className="tabs-panel is-active">
               {this.props.children && React.cloneElement(this.props.children, {
-                data: this.state.data
+                data
               })}
             </div>
           </div>

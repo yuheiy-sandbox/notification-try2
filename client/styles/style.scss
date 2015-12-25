@@ -6,6 +6,9 @@ $table-striped-background: $table-background;
 @include foundation-everything;
 
 table {
+  margin-right: auto;
+  margin-left: auto;
+
   .button {
     margin-bottom: 0;
   }

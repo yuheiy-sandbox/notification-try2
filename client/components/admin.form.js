@@ -79,23 +79,45 @@ export default class Form extends React.Component {
   handleSubmit(e) {
     e.preventDefault();
 
-    switch (this.state.type) {
+    const { type, sectionValue, nameValue, descriptionValue, thumbnailURL,
+      creators } = this.state;
+
+    switch (type) {
       case NEW:
-        if (confirm('作品情報を追加します。よろしいですか？')) {
-          eventemitter.emit('new', this.state);
-        } else {
+        if (!confirm('作品情報を追加します。よろしいですか？')) {
           return;
         }
         break;
-
       case EDIT:
-        const { id } = this.props.params;
-
-        if (confirm('作品情報を変更します。よろしいですか？')) {
-          eventemitter.emit('edit', id, this.state);
-        } else {
+        if (!confirm('作品情報を変更します。よろしいですか？')) {
           return;
         }
+    }
+
+    const data = {
+      section: parseInt(sectionValue, 10),
+      name: nameValue,
+      description: descriptionValue,
+      thumbnail: thumbnailURL,
+
+      creators: creators.map(creator => {
+        const { nameValue, roleValue, emailValue } = creator;
+
+        return {
+          name: nameValue,
+          role: roleValue,
+          email: emailValue
+        };
+      })
+    };
+
+    switch (type) {
+      case NEW:
+        eventemitter.emit('create', data);
+        break;
+      case EDIT:
+        const { id } = this.props.params;
+        eventemitter.emit('edit', id, data);
     }
 
     this.context.history.pushState(null, '/');
@@ -160,10 +182,7 @@ export default class Form extends React.Component {
     this.setType(this.props);
   }
   componentWillReceiveProps(nextProps) {
-    if (
-      this.props.params.id !== nextProps.params.id ||
-      this.props.data !== nextProps.data
-    ) {
+    if (this.props.params.id !== nextProps.params.id) {
       this.setType(nextProps);
     }
   }

@@ -12,7 +12,8 @@ import { Strategy } from 'passport-local';
 import mongoose from 'mongoose';
 import connectMongo from 'connect-mongo';
 import socketIo from 'socket.io';
-import { Creator, Work } from './models/database';
+import compression from 'compression';
+import { Work } from './models/database';
 import routes from './routes/index';
 import admin from './routes/admin';
 
@@ -56,22 +57,58 @@ app.use(csrf({ cookie: true }));
 app.use(flash());
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(compression());
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.use('/', routes);
 app.use('/admin', admin);
 
-// io.on('connection', socket => {
-//   io.emit('init', 'test data');
-//
-//   socket.on('add work', (workData, creatorData) => {
-//     const creator = new Creator(creatorData);
-//
-//     const work = new Work(Object.assign(workData, {
-//       creators: [creator]
-//     }));
-//
-//   });
-// });
+io.on('connection', socket => {
+  if (socket.handshake.headers.host !== process.env.HEROKU_URL) {
+    return;
+  }
+
+  const getAll = () => {
+    return new Promise(done =>
+      Work.find({}).sort({ modified: 1 })
+        .then(docs => done(docs))
+    );
+  };
+
+  getAll()
+    .then(docs => io.emit('update', docs));
+
+  socket.on('create', data => {
+    const work = new Work(data);
+
+    work.save()
+      .then(getAll)
+      .then(docs => io.emit('update', docs));
+  });
+
+  socket.on('edit', (id, data) => {
+    data.modified = new Date();
+
+    Work.findByIdAndUpdate(id, data)
+      .then(getAll)
+      .then(docs => io.emit('update', docs));
+  });
+
+  socket.on('delete', id => {
+    Work.findByIdAndRemove(id)
+      .then(getAll)
+      .then(docs => io.emit('update', docs));
+  });
+
+  socket.on('change', (workId, creatorId, state) => {
+    Work.findById(workId)
+      .exec((err, result) => {
+        result.creators.id(creatorId).state = state;
+        return result.save();
+      })
+      .then(getAll)
+      .then(docs => io.emit('update', docs));
+  });
+});
 
 server.listen(process.env.PORT || 3000);

@@ -54,7 +54,7 @@ export default class List extends React.Component {
                   const { length } = creators;
 
                   return (
-                    <tr key={i}>
+                    <tr key={creator._id}>
                       <td
                        className="nowrap"
                        rowSpan={length}>
@@ -98,7 +98,7 @@ export default class List extends React.Component {
                   );
                 }
                 return (
-                  <tr key={i}>
+                  <tr key={creator._id}>
                     <td className="nowrap">{creator.name}</td>
                     <td className="nowrap">{creator.role}</td>
                     <td className="nowrap">{creator.email}</td>
