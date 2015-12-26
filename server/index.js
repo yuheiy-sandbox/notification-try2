@@ -64,13 +64,59 @@ app.use('/', routes);
 app.use('/admin', admin);
 
 io.on('connection', socket => {
-  if (socket.handshake.headers.host !== process.env.HEROKU_URL) {
+  const { host, referer } = socket.handshake.headers;
+  const isAdmin = referer === `http://${process.env.HEROKU_URL}/admin/`;
+
+  if (host !== process.env.HEROKU_URL) {
     return;
   }
 
+  const STANDING = 1;
+  const NOTIFY = 2;
+  const TAKEN = 3;
+
+  const wait = delay => {
+    return new Promise(done => setTimeout(done, delay));
+  };
+
   const update = () => {
     return Work.find({}).sort({ modified: 1 })
-      .then(docs => io.emit('update', docs));
+      .then(docs => {
+        if (!isAdmin) {
+          // delete email
+          docs.forEach(doc =>
+            doc.creators.forEach(creator => creator.email = undefined)
+          );
+        }
+
+        io.emit('update', docs);
+      });
+  };
+
+  const changeState = (workId, creatorId, state, auto = false) => {
+    return Work.findById(workId)
+      .exec((err, result) => {
+        const creator = result.creators.id(creatorId);
+
+        if (auto) {
+          if (creator.state === NOTIFY) {
+            creator.state = state;
+          }
+        } else {
+          creator.state = state;
+        }
+
+        return result.save();
+      })
+      .then(update);
+  };
+
+  const sendMail = (workId, creatorId) => {
+    return Work.findById(workId)
+      .exec((err, result) => {
+        const { email } = result.creators.id(creatorId);
+        console.log(`send mail to ${email}`);
+      });
   };
 
   update();
@@ -95,12 +141,13 @@ io.on('connection', socket => {
   });
 
   socket.on('change', (workId, creatorId, state) => {
-    Work.findById(workId)
-      .exec((err, result) => {
-        result.creators.id(creatorId).state = state;
-        return result.save();
-      })
-      .then(update);
+    if (state === NOTIFY) {
+      sendMail(workId, creatorId)
+        .then(() => wait(1000 * 5))
+        .then(() => changeState(workId, creatorId, STANDING, true));
+    }
+
+    changeState(workId, creatorId, state);
   });
 });
 

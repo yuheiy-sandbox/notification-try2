@@ -3,7 +3,7 @@ import React from 'react';
 import { PropTypes } from 'react-router';
 import _ from 'lodash';
 import eventemitter from '../eventemitter';
-import sections from '../sections';
+import SECTIONS from '../sections';
 
 const NOMATCH = 0;
 const NEW = 1;
@@ -75,8 +75,7 @@ export default class Form extends React.Component {
     const datum = this.getDatum(props);
     const type = this.getType(datum);
     const initialValue = this.getInitialValue(type, datum);
-    const state = { type, ...initialValue };
-    this.setState(state);
+    this.setState({ type, ...initialValue });
   }
   handleSubmit(e) {
     e.preventDefault();
@@ -180,7 +179,7 @@ export default class Form extends React.Component {
     creators[index].emailValue = e.target.value;
     this.setState({ creators });
   }
-  componentWillMount() {
+  componentDidMount() {
     this.initialize();
   }
   componentWillReceiveProps(nextProps) {
@@ -219,7 +218,7 @@ export default class Form extends React.Component {
                value={sectionValue}
                required
                onChange={this.handleSectionChange.bind(this)}>
-                {sections.map(section =>
+                {SECTIONS.map(section =>
                   <option
                    key={section.id}
                    value={section.id}>{section.name}</option>

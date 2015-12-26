@@ -3,7 +3,7 @@ import React from 'react';
 import { Link } from 'react-router';
 import _ from 'lodash';
 import eventemitter from '../eventemitter';
-import sections from '../sections';
+import SECTIONS from '../sections';
 
 const STANDING = 1;
 const NOTIFY = 2;
@@ -31,12 +31,8 @@ export default class List extends React.Component {
                rowSpan="2">作品名</th>
               <th rowSpan="2">説明文</th>
               <th
-               className="nowrap"
-               rowSpan="2"
-               style={{
-                 minWidth: '64px',
-                 boxSizing: 'content-box'
-               }}>サムネイル</th>
+               className="nowrap thumb"
+               rowSpan="2">サムネイル</th>
               <th
                className="nowrap"
                colSpan="4">制作者</th>
@@ -64,7 +60,7 @@ export default class List extends React.Component {
                       <td
                        className="nowrap"
                        rowSpan={length}>
-                        {_.find(sections, { id: datum.section }).name}
+                        {_.find(SECTIONS, { id: datum.section }).name}
                       </td>
                       <td
                        className="nowrap"

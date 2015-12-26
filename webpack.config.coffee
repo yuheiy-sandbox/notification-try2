@@ -3,7 +3,7 @@ webpack = require 'webpack'
 
 module.exports =
   entry:
-    app: './client/app'
+    app: './client/index'
     admin: './client/admin'
 
   output:

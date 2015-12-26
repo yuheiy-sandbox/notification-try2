@@ -9,6 +9,9 @@ table {
   .button {
     margin-bottom: 0;
   }
+
+  // For debug
+  th,td { border: 1px solid #000; }
 }
 
 .tabs-title > a.is-active {
@@ -17,4 +20,9 @@ table {
 
 .nowrap {
   white-space: nowrap;
+}
+
+.thumb {
+  min-width: 64px;
+  box-sizing: content-box;
 }

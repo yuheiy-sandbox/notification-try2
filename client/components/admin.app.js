@@ -45,10 +45,10 @@ export default class App extends React.Component {
 
     return (
       <div>
-        <div className="column expanded row">
+        <header className="column expanded row">
           <h1>Dashboard</h1>
           <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Accusamus temporibus, molestiae laborum rerum iste nostrum animi odio ad, expedita dolor nobis commodi consequatur ex pariatur laboriosam maxime incidunt harum. Fugit.</p>
-        </div>
+        </header>
 
         <div className="column expanded row">
           <ul className="tabs">
