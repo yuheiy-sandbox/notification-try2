@@ -75,7 +75,7 @@ export default class Form extends React.Component {
     const datum = this.getDatum(props);
     const type = this.getType(datum);
     const initialValue = this.getInitialValue(type, datum);
-    const state = _.assign({ type }, initialValue);
+    const state = { type, ...initialValue };
     this.setState(state);
   }
   handleSubmit(e) {
