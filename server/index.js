@@ -69,7 +69,7 @@ io.on('connection', socket => {
   }
 
   const update = () => {
-    Work.find({}).sort({ modified: 1 })
+    return Work.find({}).sort({ modified: 1 })
       .then(docs => io.emit('update', docs));
   };
 
