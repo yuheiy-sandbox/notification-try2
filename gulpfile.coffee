@@ -6,7 +6,7 @@ webpackConfig = require './webpack.config'
 gulp.task 'sass', ->
   gulp.src 'client/styles/style.scss'
     .pipe $.plumber()
-    .pipe $.sourcemaps.init laadMaps: true
+    .pipe $.sourcemaps.init loadMaps: true
     .pipe $.sass(
       outputStyle: 'compressed'
       includePaths: ['node_modules/foundation-sites/scss']
@@ -15,6 +15,7 @@ gulp.task 'sass', ->
     .pipe gulp.dest 'public'
 
 myDevConfig = Object.create webpackConfig
+myDevConfig.devtool = 'source-map'
 myDevConfig.debug = true
 devCompiler = webpack myDevConfig
 
@@ -27,9 +28,19 @@ gulp.task 'webpack:dev', (cb) ->
     cb()
 
 gulp.task 'webpack:build', (cb) ->
-  webpack webpackConfig, (err, stats) ->
+  myConfig = Object.create webpackConfig
+  myConfig.plugins ?= []
+  myConfig.plugins.push(
+    new webpack.optimize.DedupePlugin()
+    new webpack.optimize.OccurenceOrderPlugin()
+    new webpack.optimize.UglifyJsPlugin
+      compress:
+        warnings: false
+  )
+
+  webpack myConfig, (err, stats) ->
     if err
-      throw new $.util.PluginError 'webpack', err
+      throw new $.util.PluginError 'webpack:build', err
     $.util.log '[webpack:build]', stats.toString
       colors: true
     cb()

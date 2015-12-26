@@ -9,7 +9,6 @@ module.exports =
   output:
     path: path.join __dirname, 'public'
     filename: '[name].js'
-    chunkFilename: '[id].js'
 
   module:
     loaders: [
@@ -17,11 +16,3 @@ module.exports =
       exclude: /node_modules/
       loader: 'babel'
     ]
-
-  plugins: [
-    new webpack.optimize.UglifyJsPlugin
-      compress:
-        warnings: false
-  ]
-
-  devtool: 'source-map'
