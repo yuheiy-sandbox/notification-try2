@@ -52,30 +52,39 @@ export default class List extends React.Component {
               const { creators } = datum;
 
               return creators.map((creator, i) => {
-                if (i === 0) {
-                  const { length } = creators;
+                const isFirst = i === 0;
+                const { length } = creators;
 
-                  return (
-                    <tr key={creator._id}>
+                return (
+                  <tr key={creator._id}>
+                    {isFirst ? [
                       <td
+                       key={`${creator._id}-section`}
                        className="nowrap"
                        rowSpan={length}>
                         {_.find(SECTIONS, { id: datum.section }).name}
-                      </td>
+                      </td>,
                       <td
+                       key={`${creator._id}-name`}
                        className="nowrap"
-                       rowSpan={length}>{datum.name}</td>
-                      <td rowSpan={length}>{datum.description}</td>
-                      <td rowSpan={length}>
+                       rowSpan={length}>{datum.name}</td>,
+                      <td
+                       key={`${creator._id}-description`} rowSpan={length}>{datum.description}</td>,
+                      <td
+                       key={`${creator._id}-thumbnail`}
+                       rowSpan={length}>
                         <img
                          src={datum.thumbnail}
                          width="64"
                          height="64" />
                       </td>
-                      <td className="nowrap">{creator.name}</td>
-                      <td className="nowrap">{creator.role}</td>
-                      <td className="nowrap">{creator.email}</td>
-                      <td className="nowrap">
+                    ] : null}
+
+                    <td className="nowrap">{creator.name}</td>
+                    <td className="nowrap">{creator.role}</td>
+                    <td className="nowrap">{creator.email}</td>
+                    <td className="nowrap">
+                      <a href={`/#/${datum._id}/${creator._id}`}>
                         {(() => {
                           switch (creator.state) {
                             case STANDING:
@@ -86,41 +95,29 @@ export default class List extends React.Component {
                               return '取込中';
                           }
                         })()}
-                      </td>
-                      <td rowSpan={length}>
+                      </a>
+                    </td>
+
+                    {isFirst ? [
+                      <td
+                       key={`${creator._id}-edit`}
+                       rowSpan={length}>
                         <Link
                          className="button"
                          to={`${datum._id}/edit`}>
                           <span className="fi-pencil"></span>
                         </Link>
-                      </td>
-                      <td rowSpan={length}>
+                      </td>,
+                      <td
+                       key={`${creator._id}-delete`}
+                       rowSpan={length}>
                         <button
                          className="alert button"
                          onClick={this.handleDelete.bind(this, datum._id)}>
                           <span className="fi-x"></span>
                         </button>
                       </td>
-                    </tr>
-                  );
-                }
-                return (
-                  <tr key={creator._id}>
-                    <td className="nowrap">{creator.name}</td>
-                    <td className="nowrap">{creator.role}</td>
-                    <td className="nowrap">{creator.email}</td>
-                    <td className="nowrap">
-                      {(() => {
-                        switch (creator.state) {
-                          case STANDING:
-                            return '待機中';
-                          case NOTIFY:
-                            return '通知中';
-                          case TAKEN:
-                            return '取込中';
-                        }
-                      })()}
-                    </td>
+                    ] : null}
                   </tr>
                 );
               })

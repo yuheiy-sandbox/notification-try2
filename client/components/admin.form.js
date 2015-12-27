@@ -22,16 +22,10 @@ export default class Form extends React.Component {
   }
   getType(datum) {
     const isNew = this.context.history.isActive('/new', null);
-
-    if (isNew) {
-      return NEW;
-    }
+    if (isNew) { return NEW; }
 
     const isEdit = !!datum;
-
-    if (isEdit) {
-      return EDIT;
-    }
+    if (isEdit) { return EDIT; }
 
     return NOMATCH;
   }
@@ -196,9 +190,7 @@ export default class Form extends React.Component {
     const { type, sectionValue, nameValue, descriptionValue, thumbnailURL,
       creators } = this.state;
 
-    if (type === NOMATCH) {
-      return null;
-    }
+    if (type === NOMATCH) { return null; }
 
     return (
       <form

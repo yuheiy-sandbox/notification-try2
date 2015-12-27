@@ -1,6 +1,7 @@
 @import 'foundation';
 
 $global-font-size: 80%;
+$success-color: #2ecc40;
 $table-striped-background: $table-background;
 
 @include foundation-everything;
@@ -25,4 +26,13 @@ table {
 .thumb {
   min-width: 64px;
   box-sizing: content-box;
+}
+
+.standing,
+.notify {
+  color: $success-color;
+}
+
+.taken {
+  color: $alert-color;
 }

@@ -82,8 +82,8 @@ io.on('connection', socket => {
   const update = () => {
     return Work.find({}).sort({ modified: 1 })
       .then(docs => {
+        // This mounting is dangerous. I fix this later.
         if (!isAdmin) {
-          // delete email
           docs.forEach(doc =>
             doc.creators.forEach(creator => creator.email = undefined)
           );
@@ -106,9 +106,9 @@ io.on('connection', socket => {
           creator.state = state;
         }
 
-        return result.save();
-      })
-      .then(update);
+        result.save()
+          .then(update);
+      });
   };
 
   const sendMail = (workId, creatorId) => {
