@@ -13,6 +13,7 @@ import mongoose from 'mongoose';
 import connectMongo from 'connect-mongo';
 import socketIo from 'socket.io';
 import compression from 'compression';
+import nodemailer from 'nodemailer';
 import { Work } from './models/database';
 import routes from './routes/index';
 import admin from './routes/admin';
@@ -75,9 +76,7 @@ io.on('connection', socket => {
   const NOTIFY = 2;
   const TAKEN = 3;
 
-  const wait = delay => {
-    return new Promise(done => setTimeout(done, delay));
-  };
+  const wait = delay => new Promise(done => setTimeout(done, delay));
 
   const update = () => {
     return Work.find({}).sort({ modified: 1 })
@@ -95,7 +94,7 @@ io.on('connection', socket => {
 
   const changeState = (workId, creatorId, state, auto = false) => {
     return Work.findById(workId)
-      .exec((err, result) => {
+      .then(result => {
         const creator = result.creators.id(creatorId);
 
         if (auto) {
@@ -106,17 +105,33 @@ io.on('connection', socket => {
           creator.state = state;
         }
 
-        result.save()
-          .then(update);
+        return result.save();
       });
   };
 
+  const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: '',
+      pass: ''
+    }
+  });
+
   const sendMail = (workId, creatorId) => {
     return Work.findById(workId)
-      .exec((err, result) => {
+      .then(result => {
         const { email } = result.creators.id(creatorId);
-        console.log(`send mail to ${email}`);
-      });
+
+        // for debug
+        return new Promise(done => done());
+
+        return transporter.sendMail({
+          from: '',
+          to: email,
+          subject: '',
+          text: ''
+        });
+      })
   };
 
   update();
@@ -144,10 +159,12 @@ io.on('connection', socket => {
     if (state === NOTIFY) {
       sendMail(workId, creatorId)
         .then(() => wait(1000 * 5))
-        .then(() => changeState(workId, creatorId, STANDING, true));
+        .then(() => changeState(workId, creatorId, STANDING, true))
+        .then(update);
     }
 
-    changeState(workId, creatorId, state);
+    changeState(workId, creatorId, state)
+      .then(update);
   });
 });
 
