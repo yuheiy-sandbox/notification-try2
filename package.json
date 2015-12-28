@@ -4,7 +4,7 @@
   "description": "",
   "main": "server/index.js",
   "scripts": {
-    "start": "babel-node server/index.js",
+    "start": "babel-node .",
     "dev": "foreman start -f Procfile_dev & gulp watch",
     "postinstall": "gulp build"
   },
@@ -52,6 +52,6 @@
     "nodemon": "^1.8.1"
   },
   "engines": {
-    "node": "4.2.3"
+    "node": "4.2.4"
   }
 }

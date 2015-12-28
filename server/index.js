@@ -66,9 +66,10 @@ app.use('/admin', admin);
 
 io.on('connection', socket => {
   const { host, referer } = socket.handshake.headers;
-  const isAdmin = referer === `http://${process.env.HEROKU_URL}/admin/`;
+  const { HEROKU_URL, GMAIL_ADDRESS, GMAIL_PASSWORD } = process.env;
+  const isAdmin = referer === `http://${HEROKU_URL}/admin/`;
 
-  if (host !== process.env.HEROKU_URL) {
+  if (host !== HEROKU_URL) {
     return;
   }
 
@@ -112,24 +113,33 @@ io.on('connection', socket => {
   const transporter = nodemailer.createTransport({
     service: 'Gmail',
     auth: {
-      user: '',
-      pass: ''
+      user: GMAIL_ADDRESS,
+      pass: GMAIL_PASSWORD
     }
   });
 
   const sendMail = (workId, creatorId) => {
     return Work.findById(workId)
       .then(result => {
-        const { email } = result.creators.id(creatorId);
+        const { name, email } = result.creators.id(creatorId);
 
         // for debug
-        return new Promise(done => done());
+        return new Promise(done => setTimeout(() => {
+          console.log(`send mail to ${email}`);
+          done();
+        }, 3000));
 
         return transporter.sendMail({
-          from: '',
+          from: GMAIL_ADDRESS,
           to: email,
-          subject: '',
-          text: ''
+          subject: `${name}（${result.name}）さんへ通知が届きました`,
+          text: [
+            `${name}（${result.name}）さんへ通知が届きました。`,
+            '○○までお越しください。',
+            '',
+            '通知の停止・再開はこちらから設定してください。'
+            `http://${HEROKU_URL}/#/${workId}/${creatorId}`
+          ].join('\n')
         });
       })
   };

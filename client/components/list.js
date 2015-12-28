@@ -73,10 +73,14 @@ export default class List extends React.Component {
                        key={`${creator._id}-thumb`}
                        className="nowrap thumb"
                        rowSpan={length}>
-                        <img src={datum.thumbnail} width="64" height="64" />
+                        <img
+                         src={datum.thumbnail}
+                         width="64"
+                         height="64" />
                       </td>,
                       <td
-                       key={`${creator._id}-description`} rowSpan={length}>{datum.description}</td>
+                       key={`${creator._id}-description`}
+                       rowSpan={length}>{datum.description}</td>
                     ] : null}
 
                     <td className="nowrap">{creator.name}</td>

@@ -15,7 +15,6 @@ gulp.task 'sass', ->
     .pipe gulp.dest 'public'
 
 myDevConfig = Object.create webpackConfig
-myDevConfig.devtool = 'source-map'
 myDevConfig.debug = true
 devCompiler = webpack myDevConfig
 

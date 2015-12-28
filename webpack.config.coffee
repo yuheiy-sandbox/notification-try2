@@ -2,9 +2,12 @@ path = require 'path'
 webpack = require 'webpack'
 
 module.exports =
+  devtool: 'source-map'
+  context: path.join __dirname, 'client'
+
   entry:
-    app: './client/index'
-    admin: './client/admin'
+    app: './index'
+    admin: './admin'
 
   output:
     path: path.join __dirname, 'public'
