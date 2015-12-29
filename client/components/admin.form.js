@@ -131,13 +131,6 @@ export default class Form extends React.Component {
   }
   handleThumbnailChange(e) {
     const file = e.target.files[0];
-
-    if (file.type !== 'image/png') {
-      alert('選択できる画像はPNG画像のみです。');
-      e.target.value = '';
-      return;
-    }
-
     const fileReader = new FileReader();
     fileReader.readAsDataURL(file);
     fileReader.addEventListener('load', () =>
@@ -244,6 +237,7 @@ export default class Form extends React.Component {
 
               <input
                type="file"
+               accept="image/png"
                onChange={this.handleThumbnailChange.bind(this)} />
             </p>
           </fieldset>

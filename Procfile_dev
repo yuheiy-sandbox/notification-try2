@@ -1,1 +1,1 @@
-web: nodemon --watch server --exec babel-node .
+web: nodemon -w server --exec babel-node .
