@@ -82,7 +82,7 @@ io.on('connection', socket => {
   const update = () => {
     return Work.find({}).sort({ modified: 1 })
       .then(docs => {
-        // This mounting is dangerous. I fix this later.
+        // この実装やばいので後で直す
         if (!isAdmin) {
           docs.forEach(doc =>
             doc.creators.forEach(creator => creator.email = undefined)
@@ -127,7 +127,7 @@ io.on('connection', socket => {
         return new Promise(done => setTimeout(() => {
           console.log(`send mail to ${email}`);
           done();
-        }, 3000));
+        }, 1000));
 
         return transporter.sendMail({
           from: GMAIL_ADDRESS,

@@ -7,10 +7,21 @@ const STANDING = 1;
 const NOTIFY = 2;
 const TAKEN = 3;
 
+const wait = delay => new Promise(done => setTimeout(done, delay));
+
 export default class Creator extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = { isLock: false };
+  }
   handleClick(state) {
     const { workId, creatorId } = this.props.params;
     eventemitter.emit('change', workId, creatorId, state);
+    this.setState({ isLock: true });
+
+    wait(1000 * 5)
+      .then(() => this.setState({ isLock: false }));
   }
   render() {
     const { data, params } = this.props;
@@ -43,33 +54,45 @@ export default class Creator extends React.Component {
           <small>です</small>
         </p>
 
-        {(() => {
-          switch (creator.state) {
-            case STANDING:
-            case NOTIFY:
+        <div className="large button-group">
+          {(() => {
+            if (this.state.isLock || creator.state === NOTIFY) {
               return (
-                <div className="large button-group">
-                  <button
-                   className="disabled success button">待機中</button>
-                  <button
-                   className="alert button"
-                   onClick={this.handleClick.bind(this, TAKEN)}>取込中</button>
-                </div>
-              );
-
-            case TAKEN:
-              return (
-                <div className="large button-group">
-                  <button
-                   className="success button"
-                   onClick={this.handleClick.bind(this, STANDING)}>
-                    待機中
-                  </button>
+                <div>
+                  <button className="disabled success button">待機中</button>
                   <button className="disabled alert button">取込中</button>
                 </div>
               );
-          }
-        })()}
+            }
+
+            switch (creator.state) {
+              case STANDING:
+                return (
+                  <div>
+                    <button
+                     className="disabled success button">待機中</button>
+                    <button
+                     className="alert button"
+                     onClick={this.handleClick.bind(this, TAKEN)}>
+                      取込中
+                    </button>
+                  </div>
+                );
+
+              case TAKEN:
+                return (
+                  <div>
+                    <button
+                     className="success button"
+                     onClick={this.handleClick.bind(this, STANDING)}>
+                      待機中
+                    </button>
+                    <button className="disabled alert button">取込中</button>
+                  </div>
+                );
+            }
+          })()}
+        </div>
       </div>
     );
   }
