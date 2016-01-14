@@ -67,7 +67,7 @@ app.use('/admin', admin);
 io.on('connection', socket => {
   const { host, referer } = socket.handshake.headers;
   const { HEROKU_URL, GMAIL_ADDRESS, GMAIL_PASSWORD } = process.env;
-  const isAdmin = referer === `http://${HEROKU_URL}/admin/`;
+  const isAdmin = referer === `https://${HEROKU_URL}/admin/`;
 
   if (host !== HEROKU_URL) {
     return;
@@ -138,7 +138,7 @@ io.on('connection', socket => {
             '○○までお越しください。',
             '',
             '通知の停止・再開はこちらから設定してください。'
-            `http://${HEROKU_URL}/#/${workId}/${creatorId}`
+            `https://${HEROKU_URL}/#/${workId}/${creatorId}`
           ].join('\n')
         });
       })
