@@ -124,10 +124,10 @@ io.on('connection', socket => {
         const { name, email } = result.creators.id(creatorId);
 
         // for debug
-        return new Promise(done => setTimeout(() => {
-          console.log(`send mail to ${email}`);
-          done();
-        }, 1000));
+        // return new Promise(done => setTimeout(() => {
+        //   console.log(`send mail to ${email}`);
+        //   done();
+        // }, 1000));
 
         return transporter.sendMail({
           from: GMAIL_ADDRESS,
